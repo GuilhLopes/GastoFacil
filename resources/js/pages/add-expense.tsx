@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DollarSign, Calendar, Tag, FileText } from "lucide-react";
-import { router } from '@inertiajs/react'
+import { router } from "@inertiajs/react";
 import Header from "./header";
 
 export default function AddExpense() {
@@ -13,58 +13,51 @@ export default function AddExpense() {
     name: "",
     amount: "",
     category: "",
-    date: new Date().toISOString().split('T')[0]
+    type: "expense", // novo campo
+    date: new Date().toISOString().split("T")[0],
   });
 
   const categories = [
     "Alimentação",
-    "Transporte", 
+    "Transporte",
     "Lazer",
     "Compras",
     "Saúde",
     "Educação",
     "Casa",
-    "Outros"
+    "Outros",
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Simular salvamento
-    console.log("Gasto adicionado:", formData);
-    
-    router.visit('/dashboard');
+    router.post("/expenses", formData); 
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <Header title="Adicionar Gasto" />
-
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Card className="p-8 gradient-card border-border/50 shadow-soft">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Nome do gasto */}
+              {/* Nome */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
-                  Nome do Gasto *
+                  Nome *
                 </Label>
                 <Input
                   id="name"
-                  placeholder="Ex: Almoço no restaurante"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className="shadow-soft focus:shadow-medium transition-smooth"
+                  placeholder="Ex: Almoço no restaurante"
                 />
               </div>
 
@@ -79,21 +72,23 @@ export default function AddExpense() {
                   type="number"
                   step="0.01"
                   min="0"
-                  placeholder="0,00"
                   value={formData.amount}
                   onChange={(e) => handleInputChange("amount", e.target.value)}
-                  className="shadow-soft focus:shadow-medium transition-smooth"
+                  placeholder="0,00"
                 />
               </div>
 
               {/* Categoria */}
               <div className="space-y-2">
-                <Label htmlFor="category" className="flex items-center gap-2">
+                <Label className="flex items-center gap-2">
                   <Tag className="w-4 h-4 text-primary" />
                   Categoria *
                 </Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                  <SelectTrigger className="shadow-soft focus:shadow-medium transition-smooth">
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => handleInputChange("category", value)}
+                >
+                  <SelectTrigger>
                     <SelectValue placeholder="Selecione uma categoria" />
                   </SelectTrigger>
                   <SelectContent>
@@ -102,6 +97,23 @@ export default function AddExpense() {
                         {category}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tipo */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">Tipo *</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => handleInputChange("type", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="income">Entrada</SelectItem>
+                    <SelectItem value="expense">Saída</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -117,7 +129,6 @@ export default function AddExpense() {
                   type="date"
                   value={formData.date}
                   onChange={(e) => handleInputChange("date", e.target.value)}
-                  className="shadow-soft focus:shadow-medium transition-smooth"
                 />
               </div>
 
@@ -126,29 +137,44 @@ export default function AddExpense() {
                 <Card className="p-4 bg-primary-light border-primary/20">
                   <h3 className="font-medium text-primary mb-2">Resumo</h3>
                   <div className="space-y-1 text-sm">
-                    <p><span className="text-muted-foreground">Gasto:</span> {formData.name}</p>
-                    <p><span className="text-muted-foreground">Valor:</span> R$ {parseFloat(formData.amount || "0").toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    <p><span className="text-muted-foreground">Categoria:</span> {formData.category}</p>
-                    <p><span className="text-muted-foreground">Data:</span> {new Date(formData.date).toLocaleDateString('pt-BR')}</p>
+                    <p>
+                      <span className="text-muted-foreground">Nome:</span>{" "}
+                      {formData.name}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Valor:</span> R${" "}
+                      {parseFloat(formData.amount || "0").toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Categoria:</span>{" "}
+                      {formData.category}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Tipo:</span>{" "}
+                      {formData.type === "income" ? "Entrada" : "Saída"}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Data:</span>{" "}
+                      {new Date(formData.date).toLocaleDateString("pt-BR")}
+                    </p>
                   </div>
                 </Card>
               )}
 
               {/* Botões */}
               <div className="flex gap-4 pt-4">
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="flex-1"
-                  onClick={() => router.visit('/dashboard')}
+                  onClick={() => router.visit("/dashboard")}
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  type="submit"
-                  className="flex-1"
-                >
-                  Salvar Gasto
+                <Button type="submit" className="flex-1">
+                  Salvar
                 </Button>
               </div>
             </form>
@@ -157,4 +183,4 @@ export default function AddExpense() {
       </main>
     </div>
   );
-};
+}
